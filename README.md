@@ -1,19 +1,3 @@
-# Terraform code repository
+# My Azure MSDN subscription
 
-Short description
-
-## What this does
-
-Lorem ipsum
-
-## Variables
-
-Lorem ipsum
-
-## Code example
-
-```hcl
-terraform {
-  ...
-}
-```
+This repository contains the Terraform code that manages the infrastructure in my Azure MSDN subscription.

@@ -14,3 +14,9 @@ terraform {
 provider "azurerm" {
   features {}
 }
+
+locals {
+  tags = {
+    git_url = "https://github.com/fabiendelpierre/my-azure-msdn-subscription"
+  }
+}

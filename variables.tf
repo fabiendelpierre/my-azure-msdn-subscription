@@ -9,3 +9,7 @@ variable "azure_region" {
 variable "sandbox_domain_name" {
   type = string
 }
+
+variable "vnet_cidr" {
+  type = string
+}

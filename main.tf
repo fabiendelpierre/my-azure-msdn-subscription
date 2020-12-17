@@ -12,14 +12,16 @@ resource "azurerm_dns_zone" "msdn_sandbox" {
   tags = local.tags
 }
 
-# module "vnet" {
-#   source = "./vnet"
+module "virtual_network" {
+  source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
+  version = "0.1.0"
 
-#   base_name = var.base_name
+  base_name = var.base_name
 
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   location            = azurerm_resource_group.msdn_sandbox.location
-#   vnet_cidr           = var.vnet_cidr
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  location            = var.azure_region
 
-#   tags = local.tags
-# }
+  vnet_cidr = var.vnet_cidr
+
+  tags = local.tags
+}

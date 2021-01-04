@@ -13,3 +13,11 @@ variable "sandbox_domain_name" {
 variable "vnet_cidr" {
   type = string
 }
+
+variable "authorized_cidrs" {
+  type = list
+}
+
+variable "authorized_entities" {
+  type = map
+}

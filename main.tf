@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "msdn_sandbox" {
-  name      = "${var.base_name}-rg"
-  location  = var.azure_region
+  name     = "${var.base_name}-rg"
+  location = var.azure_region
 
   tags = local.tags
 }
@@ -35,8 +35,8 @@ module "key_vault" {
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
 
-  authorized_entities = var.authorized_entities
-  authorized_cidrs    = var.authorized_cidrs
+  authorized_entities   = var.authorized_entities
+  authorized_cidrs      = var.authorized_cidrs
   authorized_subnet_ids = [module.virtual_network.subnet_id]
 
   tags = local.tags

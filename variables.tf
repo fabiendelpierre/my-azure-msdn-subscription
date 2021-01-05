@@ -15,9 +15,9 @@ variable "vnet_cidr" {
 }
 
 variable "authorized_cidrs" {
-  type = list
+  type = list(string)
 }
 
 variable "authorized_entities" {
-  type = map
+  type = map(any)
 }

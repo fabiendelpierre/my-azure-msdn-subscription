@@ -113,13 +113,3 @@ resource "azurerm_dns_a_record" "vault" {
   ttl                 = 300
   records             = [azurerm_public_ip.vault.ip_address]
 }
-
-### ROLE/IAM STUFF FOR THE VAULT VM
-resource "azurerm_user_assigned_identity" "vault" {
-  resource_group_name = azurerm_resource_group.sandbox.name
-  location            = azurerm_resource_group.sandbox.location
-
-  name = "${var.base_name}-vault-vm-identity"
-
-  tags = var.tags
-}

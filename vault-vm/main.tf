@@ -171,6 +171,8 @@ resource "azurerm_key_vault_access_policy" "vault_vm" {
   object_id          = azurerm_user_assigned_identity.vault.principal_id
   key_permissions    = ["create", "get", "delete", "list", "update", "wrapKey", "unwrapKey"]
   secret_permissions = ["get", "set"]
+
+  depends_on = [azurerm_role_assignment.vault]
 }
 
 resource "azurerm_key_vault_key" "main" {
@@ -180,4 +182,6 @@ resource "azurerm_key_vault_key" "main" {
   key_size     = 2048
 
   key_opts = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
+
+  depends_on = [azurerm_key_vault_access_policy.vault_vm]
 }

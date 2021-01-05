@@ -41,3 +41,20 @@ module "key_vault" {
 
   tags = local.tags
 }
+
+module "vault_vm" {
+  source = "./vault-vm"
+
+  base_name = var.base_name
+
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  location            = var.azure_region
+
+  vnet_name   = module.virtual_network.vnet_name
+  subnet_name = module.virtual_network.subnet_name
+  nsg_name    = module.virtual_network.nsg_name
+
+  my_ip_addresses = var.authorized_cidrs
+
+  tags = local.tags
+}

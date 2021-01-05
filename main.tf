@@ -50,10 +50,11 @@ module "vault_vm" {
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
 
-  vnet_name     = module.virtual_network.vnet_name
-  subnet_name   = module.virtual_network.subnet_name
-  nsg_name      = module.virtual_network.nsg_name
-  dns_zone_name = azurerm_dns_zone.msdn_sandbox.name
+  vnet_name      = module.virtual_network.vnet_name
+  subnet_name    = module.virtual_network.subnet_name
+  nsg_name       = module.virtual_network.nsg_name
+  dns_zone_name  = azurerm_dns_zone.msdn_sandbox.name
+  key_vault_name = module.key_vault.name
 
   my_ip_addresses = var.authorized_cidrs
 

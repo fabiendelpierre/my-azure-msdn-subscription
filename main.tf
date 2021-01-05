@@ -14,7 +14,7 @@ resource "azurerm_dns_zone" "msdn_sandbox" {
 
 module "virtual_network" {
   source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
-  version = "0.3.0"
+  version = "0.4.0"
 
   base_name = var.base_name
 

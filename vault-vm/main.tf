@@ -113,3 +113,71 @@ resource "azurerm_dns_a_record" "vault" {
   ttl                 = 300
   records             = [azurerm_public_ip.vault.ip_address]
 }
+
+### ROLE/IAM STUFF FOR THE VAULT VM
+resource "azurerm_user_assigned_identity" "vault" {
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = var.location
+
+  name = "${var.base_name}-vault-vm-identity"
+
+  tags = var.tags
+}
+
+resource "azurerm_role_definition" "vault" {
+  name        = "${var.base_name}-vault-role"
+  scope       = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  description = "Allows Vault cluster nodes to access Key Vault and VM metadata for authentication purposes"
+
+  assignable_scopes = ["/subscriptions/${data.azurerm_client_config.current.subscription_id}"]
+
+  permissions {
+    actions = [
+      # This allows other entities (e.g. VMs) with their own MSI to authenticate to Vault as clients
+      "Microsoft.Compute/virtualMachines/*/read",
+      "Microsoft.Compute/virtualMachineScaleSets/*/read",
+      # This allows the VM to add TXT records to validate its LetsEncrypt certificate
+      "Microsoft.Network/dnszones/read",
+      "Microsoft.Network/dnszones/TXT/read",
+      "Microsoft.Network/dnszones/TXT/write",
+      "Microsoft.Network/dnszones/TXT/delete",
+    ]
+    data_actions = [
+      "Microsoft.KeyVault/vaults/secrets/getSecret/action",
+      "Microsoft.KeyVault/vaults/secrets/setSecret/action",
+      "Microsoft.KeyVault/vaults/secrets/readMetadata/action",
+      "Microsoft.KeyVault/vaults/keys/read",
+      "Microsoft.KeyVault/vaults/keys/update/action",
+      "Microsoft.KeyVault/vaults/keys/create/action",
+      "Microsoft.KeyVault/vaults/keys/delete",
+      "Microsoft.KeyVault/vaults/keys/wrap/action",
+      "Microsoft.KeyVault/vaults/keys/unwrap/action",
+    ]
+  }
+}
+
+resource "azurerm_role_assignment" "vault" {
+  scope              = data.azurerm_resource_group.rg.id
+  role_definition_id = azurerm_role_definition.vault.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.vault.principal_id
+}
+
+### KEY VAULT BITS
+# This policy allows Hashicorp Vault to access what it needs from Azure Key Vault
+resource "azurerm_key_vault_access_policy" "vault_vm" {
+  key_vault_id = data.azurerm_key_vault.main.id
+
+  tenant_id          = data.azurerm_client_config.current.tenant_id
+  object_id          = azurerm_user_assigned_identity.vault.principal_id
+  key_permissions    = ["create", "get", "delete", "list", "update", "wrapKey", "unwrapKey"]
+  secret_permissions = ["get", "set"]
+}
+
+resource "azurerm_key_vault_key" "main" {
+  name         = "${var.base_name}-vault-key"
+  key_vault_id = data.azurerm_key_vault.main.id
+  key_type     = "RSA"
+  key_size     = 2048
+
+  key_opts = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
+}

@@ -33,3 +33,7 @@ variable "dns_zone_name" {
 variable "my_ip_addresses" {
   type = list(string)
 }
+
+variable "key_vault_name" {
+  type = string
+}

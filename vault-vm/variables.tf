@@ -26,6 +26,10 @@ variable "nsg_name" {
   type = string
 }
 
+variable "dns_zone_name" {
+  type = string
+}
+
 variable "my_ip_addresses" {
   type = list(string)
 }

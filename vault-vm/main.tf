@@ -44,7 +44,7 @@ resource "azurerm_network_security_rule" "inbound_ssh" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "inbound-ssh"
+  name = "in-vault-ssh"
 
   priority                                   = 1000
   direction                                  = "Inbound"
@@ -60,7 +60,7 @@ resource "azurerm_network_security_rule" "inbound_https" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "inbound-https"
+  name = "in-vault-https"
 
   priority                                   = 1100
   direction                                  = "Inbound"
@@ -73,11 +73,11 @@ resource "azurerm_network_security_rule" "inbound_https" {
 }
 
 ## Outbound firewall
-resource "azurerm_network_security_rule" "outbound_azure_key_vault" {
+resource "azurerm_network_security_rule" "outbound_azure_keyvault" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "outbound-azure-key-vault"
+  name = "out-vault-azure-keyvault"
 
   priority                              = 1000
   direction                             = "Outbound"
@@ -93,7 +93,7 @@ resource "azurerm_network_security_rule" "outbound_azure_storage" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "outbound-azure-storage"
+  name = "out-vault-azure-storage"
 
   priority                              = 1005
   direction                             = "Outbound"
@@ -109,7 +109,7 @@ resource "azurerm_network_security_rule" "outbound_azure_activedirectory" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "outbound-azure-activedirectory"
+  name = "out-vault-azure-activedirectory"
 
   priority                              = 1010
   direction                             = "Outbound"
@@ -125,7 +125,7 @@ resource "azurerm_network_security_rule" "outbound_http_to_internet" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name
 
-  name = "outbound-http-to-internet"
+  name = "out-vault-http-to-internet"
 
   priority                              = 1500
   direction                             = "Outbound"

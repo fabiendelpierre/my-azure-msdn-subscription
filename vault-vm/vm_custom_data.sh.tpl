@@ -39,9 +39,9 @@ gid=${gid}
 
 mkdir -p "/etc/smbcredentials"
 
-smbCredentialFile="/etc/smbcredentials/${azure_account_name}.cred"
-echo "username=${azure_account_name}" | sudo tee $smbCredentialFile > /dev/null
-echo "password=$STORAGE_ACCOUNT_KEY" | sudo tee -a $smbCredentialFile > /dev/null
+smbCredentialFile="/etc/smbcredentials/${storage_account_name}.cred"
+echo "username=${storage_account_name}" | sudo tee $smbCredentialFile > /dev/null
+echo "password=${storage_account_access_key}" | sudo tee -a $smbCredentialFile > /dev/null
 chown root:root $smbCredentialFile
 chmod 600 $smbCredentialFile
 

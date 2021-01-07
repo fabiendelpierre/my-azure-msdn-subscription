@@ -226,6 +226,9 @@ resource "azurerm_linux_virtual_machine" "main" {
     gid                            = var.vault_gid
     uid                            = var.vault_uid
     vault_version                  = var.vault_version
+    vault_config_path              = var.vault_config_path
+    vault_data_path                = var.vault_data_path
+    vault_snapshots_path           = var.vault_snapshots_path
     cluster_hostname               = trim(azurerm_dns_a_record.vault.fqdn, ".")
     key_vault_name                 = var.key_vault_name
     username                       = var.vm_admin_username
@@ -233,10 +236,10 @@ resource "azurerm_linux_virtual_machine" "main" {
     azure_tenant_id                = var.azure_tenant_id
     azure_dns_client_id            = var.azure_dns_client_id
     azure_dns_client_secret        = var.azure_dns_client_secret
-    azure_files_endpoint = var.azure_files_endpoint
-    azure_files_share_name = var.azure_files_share_name
-    storage_account_name = var.storage_account_name
-    storage_account_access_key = var.storage_account_access_key
+    azure_files_endpoint           = var.azure_files_endpoint
+    azure_files_share_name         = var.azure_files_share_name
+    storage_account_name           = var.storage_account_name
+    storage_account_access_key     = var.storage_account_access_key
 
     # vault_config_file = templatefile("${path.module}/vault_config_file.hcl.tp",{
     #   azure_tenant_id = data.azurerm_client_config.current.tenant_id

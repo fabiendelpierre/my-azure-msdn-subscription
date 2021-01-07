@@ -40,7 +40,7 @@ module "key_vault" {
 }
 
 module "storage_account" {
-  source  = "app.terraform.io/fabiend/keyvault/storageaccount"
+  source  = "app.terraform.io/fabiend/storageaccount/azurerm"
   version = "0.1.0"
 
   resource_group_name = azurerm_resource_group.msdn_sandbox.name

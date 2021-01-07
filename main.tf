@@ -41,7 +41,7 @@ module "key_vault" {
 
 module "storage_account" {
   source  = "app.terraform.io/fabiend/storageaccount/azurerm"
-  version = "0.1.0"
+  version = "0.2.0"
 
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region

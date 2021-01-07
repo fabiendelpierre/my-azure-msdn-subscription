@@ -37,7 +37,3 @@ variable "vm_admin_public_key" {
 variable "azure_dns_client_id" {
   type = string
 }
-
-variable "vm_admin_public_key" {
-  type = string
-}

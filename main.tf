@@ -39,6 +39,17 @@ module "key_vault" {
   tags = local.tags
 }
 
+module "storage_account" {
+  source  = "app.terraform.io/fabiend/keyvault/storageaccount"
+  version = "0.1.0"
+
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  location            = var.azure_region
+  base_name           = var.base_name
+
+  tags = local.tags
+}
+
 module "vault_vm" {
   source = "./vault-vm"
 

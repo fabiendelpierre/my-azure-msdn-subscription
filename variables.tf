@@ -21,3 +21,23 @@ variable "authorized_cidrs" {
 variable "authorized_entities" {
   type = map(any)
 }
+
+variable "vault_version" {
+  type = string
+}
+
+variable "vm_admin_username" {
+  type = string
+}
+
+variable "vm_admin_public_key" {
+  type = string
+}
+
+variable "azure_dns_client_id" {
+  type = string
+}
+
+variable "vm_admin_public_key" {
+  type = string
+}

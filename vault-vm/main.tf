@@ -133,14 +133,16 @@ resource "azurerm_role_definition" "vault" {
 
   permissions {
     actions = [
+      # These bits are included for reference but disabled as they aren't needed at this time.
       # This allows other entities (e.g. VMs) with their own MSI to authenticate to Vault as clients
-      "Microsoft.Compute/virtualMachines/*/read",
-      "Microsoft.Compute/virtualMachineScaleSets/*/read",
+      # "Microsoft.Compute/virtualMachines/*/read",
+      # "Microsoft.Compute/virtualMachineScaleSets/*/read",
       # This allows the VM to add TXT records to validate its LetsEncrypt certificate
-      "Microsoft.Network/dnszones/read",
-      "Microsoft.Network/dnszones/TXT/read",
-      "Microsoft.Network/dnszones/TXT/write",
-      "Microsoft.Network/dnszones/TXT/delete",
+      # This is disabled also because the script we use to manage LetsEncrypt, acme.sh, doesn't support managed system identities. So there's no point in granting the VM permissions to tweak DNS records.
+      # "Microsoft.Network/dnszones/read",
+      # "Microsoft.Network/dnszones/TXT/read",
+      # "Microsoft.Network/dnszones/TXT/write",
+      # "Microsoft.Network/dnszones/TXT/delete",
     ]
     data_actions = [
       "Microsoft.KeyVault/vaults/secrets/getSecret/action",
@@ -184,4 +186,64 @@ resource "azurerm_key_vault_key" "main" {
   key_opts = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
 
   depends_on = [azurerm_key_vault_access_policy.vault_vm]
+}
+
+resource "azurerm_linux_virtual_machine" "main" {
+  name                = "${var.base_name}-vault-vm"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = var.location
+  size                = var.vm_size
+
+  network_interface_ids = [azurerm_network_interface.vault.id]
+
+  admin_username = var.vm_admin_username
+  admin_ssh_key {
+    username   = var.vm_admin_username
+    public_key = var.vm_admin_public_key
+  }
+
+  disable_password_authentication = true
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  os_disk {
+    storage_account_type = "StandardSSD_LRS"
+    caching              = "ReadWrite"
+    disk_size_gb         = 32
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.vault.id]
+  }
+
+  custom_data = base64encode(templatefile("${path.module}/vm_custom_data.sh.tpl", {
+    gid                            = var.vault_gid
+    uid                            = var.vault_uid
+    vault_version                  = var.vault_version
+    cluster_hostname               = trim(azurerm_dns_a_record.vault.fqdn, ".")
+    key_vault_name                 = var.key_vault_name
+    username                       = var.vm_admin_username
+    dns_validation_subscription_id = var.dns_validation_subscription_id
+    azure_tenant_id                = var.azure_tenant_id
+    azure_dns_client_id            = var.azure_dns_client_id
+    azure_dns_client_secret        = var.azure_dns_client_secret
+    azure_files_endpoint = var.azure_files_endpoint
+    azure_files_share_name = var.azure_files_share_name
+    storage_account_name = var.storage_account_name
+    storage_account_access_key = var.storage_account_access_key
+
+    # vault_config_file = templatefile("${path.module}/vault_config_file.hcl.tp",{
+    #   azure_tenant_id = data.azurerm_client_config.current.tenant_id
+    #   key_vault_name = azurerm_key_vault.sandbox.name
+    #   key_vault_key_name = azurerm_key_vault_key.main.name
+    # })
+  }))
+
+  tags = var.tags
 }

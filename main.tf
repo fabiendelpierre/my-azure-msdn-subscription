@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_resource_group" "msdn_sandbox" {
   name     = "${var.base_name}-rg"
   location = var.azure_region
@@ -41,7 +43,7 @@ module "key_vault" {
 
 module "storage_account" {
   source  = "app.terraform.io/fabiend/storageaccount/azurerm"
-  version = "0.2.0"
+  version = "0.3.0"
 
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
@@ -58,6 +60,8 @@ module "vault_vm" {
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
 
+  vault_version = var.vault_version
+
   vnet_name      = module.virtual_network.vnet_name
   subnet_name    = module.virtual_network.subnet_name
   nsg_name       = module.virtual_network.nsg_name
@@ -65,6 +69,19 @@ module "vault_vm" {
   key_vault_name = module.key_vault.name
 
   my_ip_addresses = var.authorized_cidrs
+
+  vm_admin_username   = var.vm_admin_username
+  vm_admin_public_key = var.vm_admin_public_key
+
+  dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
+  azure_tenant_id                = data.azurerm_client_config.current.tenant_id
+  azure_dns_client_id            = var.azure_dns_client_id
+  azure_dns_client_secret        = var.azure_dns_client_secret
+
+  storage_account_name       = module.storage_account.name
+  storage_account_access_key = module.storage_account.primary_access_key
+  azure_files_endpoint       = module.storage_account.files_endpoint
+  azure_files_share_name     = module.storage_account.storage_share_name
 
   tags = local.tags
 }

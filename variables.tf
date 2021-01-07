@@ -37,3 +37,7 @@ variable "vm_admin_public_key" {
 variable "azure_dns_client_id" {
   type = string
 }
+
+variable "azure_dns_client_secret" {
+  type = string
+}

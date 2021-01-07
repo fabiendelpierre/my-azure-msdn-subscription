@@ -33,7 +33,7 @@ chmod 770 $VAULT_CONFIG_PATH $VAULT_RAFT_DATA
 chmod 775 $VAULT_SNAPSHOTS_PATH
 
 # Attach an Azure Files volume to store Vault snapshots in a redundant manner
-smbPath="//${azure_files_endpoint}/${azure_files_share}"
+smbPath="//${azure_files_endpoint}/${azure_files_share_name}"
 uid=${uid}
 gid=${gid}
 

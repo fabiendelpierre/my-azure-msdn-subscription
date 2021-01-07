@@ -89,6 +89,38 @@ resource "azurerm_network_security_rule" "outbound_azure_key_vault" {
   destination_port_range                = "*"
 }
 
+resource "azurerm_network_security_rule" "outbound_azure_storage" {
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  network_security_group_name = data.azurerm_network_security_group.main.name
+
+  name = "outbound-azure-storage"
+
+  priority                              = 1005
+  direction                             = "Outbound"
+  access                                = "Allow"
+  protocol                              = "Tcp"
+  source_application_security_group_ids = [azurerm_application_security_group.vault.id]
+  source_port_range                     = "*"
+  destination_address_prefix            = "Storage"
+  destination_port_range                = "*"
+}
+
+resource "azurerm_network_security_rule" "outbound_azure_activedirectory" {
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  network_security_group_name = data.azurerm_network_security_group.main.name
+
+  name = "outbound-azure-activedirectory"
+
+  priority                              = 1010
+  direction                             = "Outbound"
+  access                                = "Allow"
+  protocol                              = "Tcp"
+  source_application_security_group_ids = [azurerm_application_security_group.vault.id]
+  source_port_range                     = "*"
+  destination_address_prefix            = "AzureActiveDirectory"
+  destination_port_range                = "*"
+}
+
 resource "azurerm_network_security_rule" "outbound_http_to_internet" {
   resource_group_name         = data.azurerm_resource_group.rg.name
   network_security_group_name = data.azurerm_network_security_group.main.name

@@ -275,7 +275,7 @@ resource "azurerm_linux_virtual_machine" "main" {
     storage_account_name           = var.storage_account_name
     storage_account_access_key     = var.storage_account_access_key
 
-    vault_config_file = templatefile("${path.module}/vault_config_file.hcl.tpl", {
+    vault_config_file = templatefile("${path.module}/vault_config.hcl.tpl", {
       vault_config_path            = var.vault_config_path
       certificate_file             = "certificate.crt"
       certificate_private_key_file = "certificate.pem"

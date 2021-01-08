@@ -62,6 +62,11 @@ variable "vault_data_path" {
   default = "/var/lib/vault"
 }
 
+variable "vault_log_path" {
+  type    = string
+  default = "/var/log/vault"
+}
+
 variable "vault_snapshots_path" {
   type    = string
   default = "/var/lib/vault_snapshots"

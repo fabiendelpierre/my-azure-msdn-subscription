@@ -260,6 +260,7 @@ resource "azurerm_linux_virtual_machine" "main" {
     vault_version                  = var.vault_version
     vault_config_path              = var.vault_config_path
     vault_data_path                = var.vault_data_path
+    vault_log_path                 = var.vault_log_path
     vault_snapshots_path           = var.vault_snapshots_path
     vault_fqdn                     = trim(azurerm_dns_a_record.vault.fqdn, ".")
     acme_staging                   = var.acme_staging
@@ -274,11 +275,15 @@ resource "azurerm_linux_virtual_machine" "main" {
     storage_account_name           = var.storage_account_name
     storage_account_access_key     = var.storage_account_access_key
 
-    # vault_config_file = templatefile("${path.module}/vault_config_file.hcl.tp",{
-    #   azure_tenant_id = data.azurerm_client_config.current.tenant_id
-    #   key_vault_name = azurerm_key_vault.sandbox.name
-    #   key_vault_key_name = azurerm_key_vault_key.main.name
-    # })
+    vault_config_file = templatefile("${path.module}/vault_config_file.hcl.tpl", {
+      vault_config_path            = var.vault_config_path
+      certificate_file             = "certificate.crt"
+      certificate_private_key_file = "certificate.pem"
+      raft_data_path               = var.vault_data_path
+      azure_tenant_id              = var.azure_tenant_id
+      key_vault_name               = var.key_vault_name
+      key_vault_key_name           = azurerm_key_vault_key.main.name
+    })
   }))
 
   tags = var.tags

@@ -217,5 +217,112 @@ else
   fi
 fi
 
+# Grab the SSL certificate and private key from Key Vault
+SECRET_NAME_PREFIX=$(echo ${vault_fqdn} | tr "." "-")
+SECRET_FULLCHAIN_CERT="$SECRET_NAME_PREFIX-cert-fullchain"
+SECRET_PRIVATE_KEY="$SECRET_NAME_PREFIX-cert-private-key"
+az keyvault secret show --vault-name ${key_vault_name} --name $SECRET_FULLCHAIN_CERT | jq -r '.value' | base64 -d | tee $VAULT_CONFIG_PATH/${certificate_file} > /dev/null
+az keyvault secret show --vault-name ${key_vault_name} --name $SECRET_PRIVATE_KEY | jq -r '.value' | base64 -d | tee $VAULT_CONFIG_PATH/${certificate_private_key_file} > /dev/null
+chown root:vault $VAULT_CONFIG_PATH/*
+chmod 640 $VAULT_CONFIG_PATH/*
+
+# Write Vault config file
+VAULT_CONFIG_FILE="$VAULT_CONFIG_PATH/vault.hcl"
+cat << EOF | tee $VAULT_CONFIG_FILE
+${vault_config_file}
+EOF
+chown root:vault $VAULT_CONFIG_FILE
+chmod 640 $VAULT_CONFIG_FILE
+
+# Create the path where the Vault audit log will live and set its permissions
+AUDIT_LOG_PATH="${vault_log_path}"
+mkdir -p $AUDIT_LOG_PATH
+chown vault:vault $AUDIT_LOG_PATH
+chmod 750 $AUDIT_LOG_PATH
+
+# Download Vault
+VAULT_DOWNLOAD_BASE_URL="https://releases.hashicorp.com/vault"
+VAULT_CHECKSUM=$(curl -s $VAULT_DOWNLOAD_BASE_URL/${vault_version}/vault_${vault_version}_SHA256SUMS | grep linux_amd64 | awk '{print $1}')
+curl --silent --remote-name $VAULT_DOWNLOAD_BASE_URL/${vault_version}/vault_${vault_version}_linux_amd64.zip
+
+# Verify Vault archive checksum from earlier
+file_checksum=$(sha256sum vault_${vault_version}_linux_amd64.zip | awk '{print $1}')
+
+if [[ ! "$VAULT_CHECKSUM" == "$file_checksum" ]]
+then
+  echo Checksum mismatch, aborting...
+  exit 1
+fi
+
+# Install Vault binary
+VAULT_INSTALL_PATH="/usr/local/bin"
+unzip vault_${vault_version}_linux_amd64.zip
+mv vault $VAULT_INSTALL_PATH/
+chown root:root $VAULT_INSTALL_PATH/vault
+chmod 755 $VAULT_INSTALL_PATH/vault
+$VAULT_INSTALL_PATH/vault --version
+# Clean up
+rm -f vault_${vault_version}*zip
+
+# Set up Vault
+# CLI autocomplete
+/usr/local/bin/vault -autocomplete-install
+complete -C /usr/local/bin/vault vault
+
+# HashiCorp says to do this for security reasons
+setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
+
+# Set up Vault systemd unit
+touch /etc/systemd/system/vault.service
+cat << EOF | tee /etc/systemd/system/vault.service
+[Unit]
+Description="HashiCorp Vault - A tool for managing secrets"
+Documentation=https://www.vaultproject.io/docs/
+Requires=network-online.target
+After=network-online.target
+ConditionFileNotEmpty=$VAULT_CONFIG_FILE
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+User=vault
+Group=vault
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+SecureBits=keep-caps
+AmbientCapabilities=CAP_IPC_LOCK
+Capabilities=CAP_IPC_LOCK+ep
+CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+NoNewPrivileges=yes
+ExecStart=/usr/local/bin/vault server -config=$VAULT_CONFIG_FILE
+EOF
+cat << "EOF" | tee -a /etc/systemd/system/vault.service
+ExecReload=/bin/kill --signal HUP $MAINPID
+KillMode=process
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+StartLimitInterval=60
+StartLimitBurst=3
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+
+export VAULT_ADDR="https://localhost:8200"
+# Start Vault
+systemctl enable vault
+systemctl start vault
+
+# Wait a little bit for Vault to come up before moving on
+sleep 10s
+
 # This should stay at the end
 echo "This file appears in /home/${username} to tell you when the VM custom data script is done running. It does NOT mean that the script ran without issues!" | tee /home/${username}/finished

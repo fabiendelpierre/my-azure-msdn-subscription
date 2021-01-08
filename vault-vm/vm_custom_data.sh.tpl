@@ -116,6 +116,35 @@ else
   az keyvault secret set --vault-name ${key_vault_name} --name $SECRET_CSR_FILE --encoding base64 --value $CSR_FILE
   az keyvault secret set --vault-name ${key_vault_name} --name $SECRET_CSR_CONF_FILE --encoding base64 --value $CSR_CONF_FILE
   az keyvault secret set --vault-name ${key_vault_name} --name $SECRET_PRIVATE_KEY --encoding base64 --value $PRIVATE_KEY
+
+  # Now install the new cert so Vault can use it
+  # Set some variables
+  VAULT_CONFIG_PATH="${vault_config_path}"
+  TEMP_CERT_FILE="/tmp/certificate.crt"
+  TEMP_KEY_FILE="/tmp/certificate.pem"
+  PERM_CERT_FILE="$VAULT_CONFIG_PATH/${certificate_file}"
+  PERM_KEY_FILE="$VAULT_CONFIG_PATH/${certificate_private_key_file}"
+
+  # Download the current certificate and private key files
+  az keyvault secret show --vault-name ${key_vault_name} --name $SECRET_FULLCHAIN_CERT | jq -r '.value' | base64 -d | tee $TEMP_CERT_FILE > /dev/null
+  az keyvault secret show --vault-name ${key_vault_name} --name $SECRET_PRIVATE_KEY | jq -r '.value' | base64 -d | tee $TEMP_KEY_FILE > /dev/null
+
+  # Stop the Vault service so we can swap the old cert for the new one
+  systemctl stop vault
+
+  # Overwrite the old cert with the new one
+  cp -f $TEMP_CERT_FILE $PERM_CERT_FILE
+  cp -f $TEMP_KEY_FILE $PERM_KEY_FILE
+
+  # Make sure the permissions on the cert files are good
+  chown root:vault $PERM_CERT_FILE $PERM_KEY_FILE
+  chmod 640 $PERM_CERT_FILE $PERM_KEY_FILE
+
+  # Restart Vault now that our work is done
+  systemctl start vault
+
+  # Clean up the temp files
+  rm -f $TEMP_CERT_FILE $TEMP_KEY_FILE
 fi
 EOF
 
@@ -266,11 +295,14 @@ rm -f vault_${vault_version}*zip
 
 # Set up Vault
 # CLI autocomplete
-/usr/local/bin/vault -autocomplete-install
-complete -C /usr/local/bin/vault vault
+$VAULT_INSTALL_PATH/vault -autocomplete-install
+complete -C $VAULT_INSTALL_PATH/vault vault
 
 # HashiCorp says to do this for security reasons
-setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
+setcap 'cap_ipc_lock=+ep' $VAULT_INSTALL_PATH/vault
+
+# Do this to allow Vault to bind to port 443
+setcap CAP_NET_BIND_SERVICE=+eip $VAULT_INSTALL_PATH/vault
 
 # Set up Vault systemd unit
 touch /etc/systemd/system/vault.service
@@ -294,7 +326,7 @@ PrivateDevices=yes
 SecureBits=keep-caps
 AmbientCapabilities=CAP_IPC_LOCK
 Capabilities=CAP_IPC_LOCK+ep
-CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK CAP_NET_BIND_SERVICE
 NoNewPrivileges=yes
 ExecStart=/usr/local/bin/vault server -config=$VAULT_CONFIG_FILE
 EOF
@@ -316,13 +348,99 @@ EOF
 
 systemctl daemon-reload
 
-export VAULT_ADDR="https://localhost:8200"
+# Set VAULT_ADDR env variable for all users
+echo export VAULT_ADDR="https://localhost" > /etc/profile.d/vault.sh
+echo export VAULT_SKIP_VERIFY=true >> /etc/profile.d/vault.sh
+export VAULT_ADDR="https://localhost"
+export VAULT_SKIP_VERIFY=true
+
 # Start Vault
 systemctl enable vault
 systemctl start vault
 
 # Wait a little bit for Vault to come up before moving on
 sleep 10s
+
+# Initialize Vault if needed
+# Check if Vault is already initialized
+INITCHECK=$($VAULT_INSTALL_PATH/vault status -format=json | jq .initialized)
+# This is where we'll put the recovery keys if the Vault is not already initialized
+KEYS_FILE="/tmp/keys"
+
+# If Vault is not initialized, then do that, and record the recovery keys and root token in a text file
+if [[ "$INITCHECK" == "false" ]]
+then
+  $VAULT_INSTALL_PATH/vault operator init > $KEYS_FILE
+  # Parse the text file with the recovery keys.
+  # Get the keys from the text file and put them in environment variables.
+  RECOVERY_KEY_1=$(grep "Recovery Key 1" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+  RECOVERY_KEY_2=$(grep "Recovery Key 2" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+  RECOVERY_KEY_3=$(grep "Recovery Key 3" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+  RECOVERY_KEY_4=$(grep "Recovery Key 4" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+  RECOVERY_KEY_5=$(grep "Recovery Key 5" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+  # Also get the root token from the text file
+  INITIAL_ROOT_TOKEN=$(grep "Initial Root Token" $KEYS_FILE | cut -d':' -f2 | tr -d ' ')
+
+  # Delete the text file with the plain text secrets, now that its values have been stored in variables
+  rm -f $KEYS_FILE
+
+  # Even though this code should run only if Vault is NOT already initialized,
+  # let's be careful and check if secrets already exist before writing them to
+  # Key Vault. We don't want to overwrite anything accidentally.
+
+  SECRET_NAME_PREFIX=$(echo ${vault_fqdn} | tr "." "-")
+
+  # Recovery key 1
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-recovery-key-1" == 0
+  then
+    # If yes, do nothing
+    echo Secret $SECRET_NAME_PREFIX-recovery-key-1 already exists, skipping Key Vault upload step...
+  else
+    # If not, write the secret to Key Vault
+    az keyvault secret set --name $SECRET_NAME_PREFIX-recovery-key-1 --vault-name ${key_vault_name} --value "$RECOVERY_KEY_1"
+  fi
+
+  # Repeat for the other unseal keys
+  # Recovery key 2
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-recovery-key-2" == 0
+  then
+    echo Secret $SECRET_NAME_PREFIX-recovery-key-2 already exists, skipping Key Vault upload step...
+  else
+    az keyvault secret set --name $SECRET_NAME_PREFIX-recovery-key-2 --vault-name ${key_vault_name} --value "$RECOVERY_KEY_2"
+  fi
+
+  # Recovery key 3
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-recovery-key-3" == 0
+  then
+    echo Secret $SECRET_NAME_PREFIX-recovery-key-3 already exists, skipping Key Vault upload step...
+  else
+    az keyvault secret set --name $SECRET_NAME_PREFIX-recovery-key-3 --vault-name ${key_vault_name} --value "$RECOVERY_KEY_3"
+  fi
+
+  # Recovery key 4
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-recovery-key-4" == 0
+  then
+    echo Secret $SECRET_NAME_PREFIX-recovery-key-4 already exists, skipping Key Vault upload step...
+  else
+    az keyvault secret set --name $SECRET_NAME_PREFIX-recovery-key-4 --vault-name ${key_vault_name} --value "$RECOVERY_KEY_4"
+  fi
+
+  # Recovery key 5
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-recovery-key-5" == 0
+  then
+    echo Secret $SECRET_NAME_PREFIX-recovery-key-5 already exists, skipping Key Vault upload step...
+  else
+    az keyvault secret set --name $SECRET_NAME_PREFIX-recovery-key-5 --vault-name ${key_vault_name} --value "$RECOVERY_KEY_5"
+  fi
+
+  # Now do the same for the initial root token
+  if secret_exists "${key_vault_name}" "$SECRET_NAME_PREFIX-initial-root-token" == 0
+  then
+    echo Secret $SECRET_NAME_PREFIX-initial-root-token already exists, skipping Key Vault upload step...
+  else
+    az keyvault secret set --name $SECRET_NAME_PREFIX-initial-root-token --vault-name ${key_vault_name} --value "$INITIAL_ROOT_TOKEN"
+  fi
+fi
 
 # This should stay at the end
 echo "This file appears in /home/${username} to tell you when the VM custom data script is done running. It does NOT mean that the script ran without issues!" | tee /home/${username}/finished

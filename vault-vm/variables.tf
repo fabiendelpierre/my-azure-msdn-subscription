@@ -112,22 +112,6 @@ variable "azure_dns_client_secret" {
   type = string
 }
 
-variable "azure_files_endpoint" {
-  type = string
-}
-
-variable "azure_files_share_name" {
-  type = string
-}
-
-variable "storage_account_name" {
-  type = string
-}
-
-variable "storage_account_access_key" {
-  type = string
-}
-
 variable "certificate_file_name" {
   type    = string
   default = "certificate.crt"

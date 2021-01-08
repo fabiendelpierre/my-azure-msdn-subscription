@@ -43,7 +43,7 @@ module "key_vault" {
 
 module "storage_account" {
   source  = "app.terraform.io/fabiend/storageaccount/azurerm"
-  version = "0.3.0"
+  version = "0.4.0"
 
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
@@ -79,11 +79,6 @@ module "vault_vm" {
   azure_tenant_id                = data.azurerm_client_config.current.tenant_id
   azure_dns_client_id            = var.azure_dns_client_id
   azure_dns_client_secret        = var.azure_dns_client_secret
-
-  storage_account_name       = module.storage_account.name
-  storage_account_access_key = module.storage_account.primary_access_key
-  azure_files_endpoint       = module.storage_account.files_endpoint
-  azure_files_share_name     = module.storage_account.storage_share_name
 
   tags = local.tags
 }

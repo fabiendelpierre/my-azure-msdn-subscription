@@ -12,42 +12,19 @@ apt-get update
 apt-get install -y azure-cli
 
 # Install required system packages
-apt-get install -y jq unzip cifs-utils
+apt-get install -y jq unzip
 
 # Clean up
-apt autoremove -y
-
-# Disable SMB 1.0 for security
-# See https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux#securing-linux
-echo "options cifs disable_legacy_dialects=Y" | tee -a /etc/modprobe.d/local.conf > /dev/null
+apt-get autoremove -y
 
 # Set up a UNIX user and group for Vault
 VAULT_CONFIG_PATH="${vault_config_path}"
 VAULT_RAFT_DATA="${vault_data_path}"
-VAULT_SNAPSHOTS_PATH="${vault_snapshots_path}"
-mkdir -p $VAULT_CONFIG_PATH $VAULT_RAFT_DATA $VAULT_SNAPSHOTS_PATH
+mkdir -p $VAULT_CONFIG_PATH $VAULT_RAFT_DATA
 groupadd --system -g ${gid} vault
 useradd --system -u ${uid} -g vault --home $VAULT_CONFIG_PATH --shell /bin/false vault
-chown root:${gid} $VAULT_CONFIG_PATH $VAULT_RAFT_DATA $VAULT_SNAPSHOTS_PATH
+chown root:${gid} $VAULT_CONFIG_PATH $VAULT_RAFT_DATA
 chmod 770 $VAULT_CONFIG_PATH $VAULT_RAFT_DATA
-chmod 775 $VAULT_SNAPSHOTS_PATH
-
-# Attach an Azure Files volume to store Vault snapshots in a redundant manner
-smbPath="//${azure_files_endpoint}/${azure_files_share_name}"
-uid=${uid}
-gid=${gid}
-
-mkdir -p "/etc/smbcredentials"
-
-smbCredentialFile="/etc/smbcredentials/${storage_account_name}.cred"
-echo "username=${storage_account_name}" | sudo tee $smbCredentialFile > /dev/null
-echo "password=${storage_account_access_key}" | sudo tee -a $smbCredentialFile > /dev/null
-chown root:root $smbCredentialFile
-chmod 600 $smbCredentialFile
-
-echo "$smbPath ${vault_snapshots_path} cifs nofail,vers=3.0,credentials=$smbCredentialFile,uid=$uid,gid=$gid,dir_mode=0755,file_mode=0644,serverino" | tee -a /etc/fstab > /dev/null
-
-mount -a
 
 # Install acme.sh so we can request an SSL certificate for TFE
 ACME_INSTALL="/home/${username}/acme-sh-install"
@@ -152,8 +129,8 @@ EOF
 az login --identity
 
 # Set some env variables for acme.sh
-export AZUREDNS_SUBSCRIPTIONID="${dns_validation_subscription_id}"
-export AZUREDNS_TENANTID="${azure_tenant_id}"
+export AZUREDNS_SUBSCRIPTIONID="${azure_dns_subscription_id}"
+export AZUREDNS_TENANTID="${azure_dns_tenant_id}"
 export AZUREDNS_APPID="${azure_dns_client_id}"
 export AZUREDNS_CLIENTSECRET="${azure_dns_client_secret}"
 

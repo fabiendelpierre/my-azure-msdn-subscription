@@ -359,7 +359,7 @@ systemctl enable vault
 systemctl start vault
 
 # Wait a little bit for Vault to come up before moving on
-sleep 10s
+sleep 20s
 
 # Initialize Vault if needed
 # Check if Vault is already initialized

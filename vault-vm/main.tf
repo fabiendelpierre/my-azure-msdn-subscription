@@ -274,11 +274,13 @@ resource "azurerm_linux_virtual_machine" "main" {
     azure_files_share_name         = var.azure_files_share_name
     storage_account_name           = var.storage_account_name
     storage_account_access_key     = var.storage_account_access_key
+    certificate_file               = var.certificate_file_name
+    certificate_private_key_file   = var.certificate_private_key_file_name
 
     vault_config_file = templatefile("${path.module}/vault_config.hcl.tpl", {
       vault_config_path            = var.vault_config_path
-      certificate_file             = "certificate.crt"
-      certificate_private_key_file = "certificate.pem"
+      certificate_file             = var.certificate_file_name
+      certificate_private_key_file = var.certificate_private_key_file_name
       raft_data_path               = var.vault_data_path
       azure_tenant_id              = var.azure_tenant_id
       key_vault_name               = var.key_vault_name

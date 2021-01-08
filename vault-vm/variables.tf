@@ -127,3 +127,13 @@ variable "storage_account_name" {
 variable "storage_account_access_key" {
   type = string
 }
+
+variable "certificate_file_name" {
+  type    = string
+  default = "certificate.crt"
+}
+
+variable "certificate_private_key_file_name" {
+  type    = string
+  default = "certificate.pem"
+}

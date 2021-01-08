@@ -30,7 +30,7 @@ module "virtual_network" {
 
 module "key_vault" {
   source  = "app.terraform.io/fabiend/keyvault/azurerm"
-  version = "0.2.0"
+  version = "0.2.1"
 
   base_name = var.base_name
 

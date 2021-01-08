@@ -82,6 +82,15 @@ variable "vault_version" {
   default = "1.6.1"
 }
 
+variable "vault_hostname" {
+  type = string
+}
+
+variable "acme_staging" {
+  type    = string
+  default = "true"
+}
+
 variable "dns_validation_subscription_id" {
   type = string
 }

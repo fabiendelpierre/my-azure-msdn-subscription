@@ -26,6 +26,14 @@ variable "vault_version" {
   type = string
 }
 
+variable "vault_hostname" {
+  type = string
+}
+
+variable "acme_staging" {
+  type = string
+}
+
 variable "vm_admin_username" {
   type = string
 }

@@ -139,7 +139,7 @@ resource "azurerm_network_security_rule" "outbound_http_to_internet" {
 
 ### DNS BITS
 resource "azurerm_dns_a_record" "vault" {
-  name                = "vault"
+  name                = var.vault_hostname
   zone_name           = data.azurerm_dns_zone.main.name
   resource_group_name = data.azurerm_resource_group.rg.name
   ttl                 = 300
@@ -261,7 +261,8 @@ resource "azurerm_linux_virtual_machine" "main" {
     vault_config_path              = var.vault_config_path
     vault_data_path                = var.vault_data_path
     vault_snapshots_path           = var.vault_snapshots_path
-    cluster_hostname               = trim(azurerm_dns_a_record.vault.fqdn, ".")
+    vault_fqdn                     = trim(azurerm_dns_a_record.vault.fqdn, ".")
+    acme_staging                   = var.acme_staging
     key_vault_name                 = var.key_vault_name
     username                       = var.vm_admin_username
     dns_validation_subscription_id = var.dns_validation_subscription_id

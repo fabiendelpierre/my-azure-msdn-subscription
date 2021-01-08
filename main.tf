@@ -60,7 +60,8 @@ module "vault_vm" {
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   location            = var.azure_region
 
-  vault_version = var.vault_version
+  vault_version  = var.vault_version
+  vault_hostname = var.vault_hostname
 
   vnet_name      = module.virtual_network.vnet_name
   subnet_name    = module.virtual_network.subnet_name
@@ -72,6 +73,7 @@ module "vault_vm" {
 
   vm_admin_username   = var.vm_admin_username
   vm_admin_public_key = var.vm_admin_public_key
+  acme_staging        = "true"
 
   dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
   azure_tenant_id                = data.azurerm_client_config.current.tenant_id

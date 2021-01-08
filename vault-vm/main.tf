@@ -137,6 +137,22 @@ resource "azurerm_network_security_rule" "outbound_http_to_internet" {
   destination_port_ranges               = ["80", "443"]
 }
 
+resource "azurerm_network_security_rule" "outbound_ntp_to_internet" {
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  network_security_group_name = data.azurerm_network_security_group.main.name
+
+  name = "out-vault-ntp-to-internet"
+
+  priority                              = 1510
+  direction                             = "Outbound"
+  access                                = "Allow"
+  protocol                              = "Udp"
+  source_application_security_group_ids = [azurerm_application_security_group.vault.id]
+  source_port_range                     = "*"
+  destination_address_prefix            = "Internet"
+  destination_port_range                = "123"
+}
+
 ### DNS BITS
 resource "azurerm_dns_a_record" "vault" {
   name                = var.vault_hostname

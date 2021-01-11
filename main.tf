@@ -52,34 +52,34 @@ module "storage_account" {
   tags = local.tags
 }
 
-# module "vault_vm" {
-#   source  = "app.terraform.io/fabiend/hashicorpvault/azurerm"
-#   version = "0.1.0"
+module "vault_vm" {
+  source  = "app.terraform.io/fabiend/hashicorpvault/azurerm"
+  version = "0.1.0"
 
-#   base_name = var.base_name
+  base_name = var.base_name
 
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   location            = var.azure_region
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  location            = var.azure_region
 
-#   vault_version  = var.vault_version
-#   vault_hostname = var.vault_hostname
+  vault_version  = var.vault_version
+  vault_hostname = var.vault_hostname
 
-#   vnet_name      = module.virtual_network.vnet_name
-#   subnet_name    = module.virtual_network.subnet_name
-#   nsg_name       = module.virtual_network.nsg_name
-#   dns_zone_name  = azurerm_dns_zone.msdn_sandbox.name
-#   key_vault_name = module.key_vault.name
+  vnet_name      = module.virtual_network.vnet_name
+  subnet_name    = module.virtual_network.subnet_name
+  nsg_name       = module.virtual_network.nsg_name
+  dns_zone_name  = azurerm_dns_zone.msdn_sandbox.name
+  key_vault_name = module.key_vault.name
 
-#   my_ip_addresses = var.authorized_cidrs
+  my_ip_addresses = var.authorized_cidrs
 
-#   vm_admin_username   = var.vm_admin_username
-#   vm_admin_public_key = var.vm_admin_public_key
-#   acme_staging        = "true"
+  vm_admin_username   = var.vm_admin_username
+  vm_admin_public_key = var.vm_admin_public_key
+  acme_staging        = "true"
 
-#   dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
-#   azure_tenant_id                = data.azurerm_client_config.current.tenant_id
-#   azure_dns_client_id            = var.azure_dns_client_id
-#   azure_dns_client_secret        = var.azure_dns_client_secret
+  dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
+  azure_tenant_id                = data.azurerm_client_config.current.tenant_id
+  azure_dns_client_id            = var.azure_dns_client_id
+  azure_dns_client_secret        = var.azure_dns_client_secret
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}

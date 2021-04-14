@@ -14,6 +14,23 @@ resource "azurerm_dns_zone" "msdn_sandbox" {
   tags = local.tags
 }
 
+# Delegation to my sandbox DNS zone in AWS Route 53
+resource "azurerm_dns_ns_record" "aws_sandbox" {
+  name                = "aws"
+  zone_name           = azurerm_dns_zone.msdn_sandbox.name
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  ttl                 = 3600
+
+  records = [
+    "ns-344.awsdns-43.com",
+    "ns-1088.awsdns-08.org",
+    "ns-594.awsdns-10.net",
+    "ns-1981.awsdns-55.co.uk",
+  ]
+
+  tags = local.tags
+}
+
 module "virtual_network" {
   source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
   version = "0.4.0"

@@ -22,10 +22,10 @@ resource "azurerm_dns_ns_record" "aws_sandbox" {
   ttl                 = 3600
 
   records = [
-    "ns-344.awsdns-43.com",
-    "ns-1088.awsdns-08.org",
-    "ns-594.awsdns-10.net",
-    "ns-1981.awsdns-55.co.uk",
+    "ns-1746.awsdns-26.co.uk",
+    "ns-920.awsdns-51.net",
+    "ns-449.awsdns-56.com",
+    "ns-1440.awsdns-52.org.",
   ]
 
   tags = local.tags

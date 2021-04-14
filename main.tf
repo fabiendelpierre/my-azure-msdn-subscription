@@ -54,7 +54,7 @@ module "storage_account" {
 
 module "vault_vm" {
   source  = "app.terraform.io/fabiend/hashicorpvault/azurerm"
-  version = "0.1.1"
+  version = "0.1.2"
 
   base_name = var.base_name
 

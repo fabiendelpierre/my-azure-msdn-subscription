@@ -31,72 +31,72 @@ resource "azurerm_dns_ns_record" "aws_sandbox" {
   tags = local.tags
 }
 
-module "virtual_network" {
-  source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
-  version = "0.4.0"
+# module "virtual_network" {
+#   source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
+#   version = "0.4.0"
 
-  base_name = var.base_name
+#   base_name = var.base_name
 
-  resource_group_name = azurerm_resource_group.msdn_sandbox.name
-  location            = var.azure_region
+#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+#   location            = var.azure_region
 
-  vnet_cidr = var.vnet_cidr
+#   vnet_cidr = var.vnet_cidr
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
-module "key_vault" {
-  source  = "app.terraform.io/fabiend/keyvault/azurerm"
-  version = "0.2.1"
+# module "key_vault" {
+#   source  = "app.terraform.io/fabiend/keyvault/azurerm"
+#   version = "0.2.1"
 
-  base_name = var.base_name
+#   base_name = var.base_name
 
-  resource_group_name = azurerm_resource_group.msdn_sandbox.name
-  location            = var.azure_region
-  authorized_entities = var.authorized_entities
+#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+#   location            = var.azure_region
+#   authorized_entities = var.authorized_entities
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
-module "storage_account" {
-  source  = "app.terraform.io/fabiend/storageaccount/azurerm"
-  version = "0.4.0"
+# module "storage_account" {
+#   source  = "app.terraform.io/fabiend/storageaccount/azurerm"
+#   version = "0.4.0"
 
-  resource_group_name = azurerm_resource_group.msdn_sandbox.name
-  location            = var.azure_region
-  base_name           = var.base_name
+#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+#   location            = var.azure_region
+#   base_name           = var.base_name
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
-module "vault_vm" {
-  source  = "app.terraform.io/fabiend/hashicorpvault/azurerm"
-  version = "0.1.2"
+# module "vault_vm" {
+#   source  = "app.terraform.io/fabiend/hashicorpvault/azurerm"
+#   version = "0.1.2"
 
-  base_name = var.base_name
+#   base_name = var.base_name
 
-  resource_group_name = azurerm_resource_group.msdn_sandbox.name
-  location            = var.azure_region
+#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+#   location            = var.azure_region
 
-  vault_version  = var.vault_version
-  vault_hostname = var.vault_hostname
+#   vault_version  = var.vault_version
+#   vault_hostname = var.vault_hostname
 
-  vnet_name      = module.virtual_network.vnet_name
-  subnet_name    = module.virtual_network.subnet_name
-  nsg_name       = module.virtual_network.nsg_name
-  dns_zone_name  = azurerm_dns_zone.msdn_sandbox.name
-  key_vault_name = module.key_vault.name
+#   vnet_name      = module.virtual_network.vnet_name
+#   subnet_name    = module.virtual_network.subnet_name
+#   nsg_name       = module.virtual_network.nsg_name
+#   dns_zone_name  = azurerm_dns_zone.msdn_sandbox.name
+#   key_vault_name = module.key_vault.name
 
-  my_ip_addresses = var.authorized_cidrs
+#   my_ip_addresses = var.authorized_cidrs
 
-  vm_admin_username   = var.vm_admin_username
-  vm_admin_public_key = var.vm_admin_public_key
-  acme_staging        = "false"
+#   vm_admin_username   = var.vm_admin_username
+#   vm_admin_public_key = var.vm_admin_public_key
+#   acme_staging        = "false"
 
-  dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
-  azure_tenant_id                = data.azurerm_client_config.current.tenant_id
-  azure_dns_client_id            = var.azure_dns_client_id
-  azure_dns_client_secret        = var.azure_dns_client_secret
+#   dns_validation_subscription_id = data.azurerm_client_config.current.subscription_id
+#   azure_tenant_id                = data.azurerm_client_config.current.tenant_id
+#   azure_dns_client_id            = var.azure_dns_client_id
+#   azure_dns_client_secret        = var.azure_dns_client_secret
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }

@@ -40,6 +40,20 @@ resource "azurerm_virtual_network" "msdn_sandbox" {
   tags = local.tags
 }
 
+resource "azurerm_subnet" "msdn_sandbox1" {
+  name                 = "${var.base_name}-vnet-subnet1"
+  resource_group_name  = azurerm_resource_group.msdn_sandbox.name
+  virtual_network_name = azurerm_virtual_network.msdn_sandbox.name
+  address_prefixes     = [cidrsubnet(var.vnet_cidr, 2, 0)]
+
+  service_endpoints = [
+    "Microsoft.AzureActiveDirectory",
+    "Microsoft.ContainerRegistry",
+    "Microsoft.KeyVault",
+    "Microsoft.Storage",
+  ]
+}
+
 # module "key_vault" {
 #   source  = "app.terraform.io/fabiend/keyvault/azurerm"
 #   version = "0.2.1"

@@ -31,18 +31,13 @@ resource "azurerm_dns_ns_record" "aws_sandbox" {
   tags = local.tags
 }
 
-# module "virtual_network" {
-#   source  = "app.terraform.io/fabiend/virtualnetwork/azurerm"
-#   version = "0.4.0"
-
-#   base_name = var.base_name
-
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+# resource "azurerm_virtual_network" "msdn_sandbox" {
+#   name                = "${var.base_name}-vnet"
 #   location            = var.azure_region
+#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+#   address_space       = [var.vnet_cidr]
 
-#   vnet_cidr = var.vnet_cidr
-
-#   tags = local.tags
+#   tags = var.tags
 # }
 
 # module "key_vault" {

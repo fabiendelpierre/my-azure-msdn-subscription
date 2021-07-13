@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 0.14"
+  required_version = "~> 1.0"
 
   required_providers {
     azurerm = {
@@ -17,6 +17,6 @@ provider "azurerm" {
 
 locals {
   tags = {
-    git_url = "https://github.com/fabiendelpierre/my-azure-msdn-subscription"
+    git_url = "https://github.com/fabiendelpierre/my-azure-msdn-sandbox-infrastructure"
   }
 }

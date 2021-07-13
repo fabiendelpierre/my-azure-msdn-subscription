@@ -37,7 +37,7 @@ resource "azurerm_virtual_network" "msdn_sandbox" {
   resource_group_name = azurerm_resource_group.msdn_sandbox.name
   address_space       = [var.vnet_cidr]
 
-  tags = var.tags
+  tags = local.tags
 }
 
 # module "key_vault" {

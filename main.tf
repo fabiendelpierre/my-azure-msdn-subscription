@@ -31,14 +31,14 @@ resource "azurerm_dns_ns_record" "aws_sandbox" {
   tags = local.tags
 }
 
-# resource "azurerm_virtual_network" "msdn_sandbox" {
-#   name                = "${var.base_name}-vnet"
-#   location            = var.azure_region
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   address_space       = [var.vnet_cidr]
+resource "azurerm_virtual_network" "msdn_sandbox" {
+  name                = "${var.base_name}-vnet"
+  location            = var.azure_region
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  address_space       = [var.vnet_cidr]
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
 
 # module "key_vault" {
 #   source  = "app.terraform.io/fabiend/keyvault/azurerm"

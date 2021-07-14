@@ -16,7 +16,7 @@ resource "azurerm_dns_zone" "msdn_sandbox" {
 resource "azurerm_dns_ns_record" "aws_sandbox" {
   name                = "aws"
   zone_name           = azurerm_dns_zone.msdn_sandbox.name
-  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  resource_group_name = azurerm_resource_group.infra.name
   ttl                 = 3600
 
   records = [

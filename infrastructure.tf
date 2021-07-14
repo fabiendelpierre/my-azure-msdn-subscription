@@ -5,12 +5,12 @@ resource "azurerm_resource_group" "infra" {
   tags = local.tags
 }
 
-# resource "azurerm_dns_zone" "msdn_sandbox" {
-#   name                = var.sandbox_domain_name
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
+resource "azurerm_dns_zone" "msdn_sandbox" {
+  name                = var.sandbox_domain_name
+  resource_group_name = azurerm_resource_group.infra.name
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
 # # Delegation to my sandbox DNS zone in AWS Route 53
 # resource "azurerm_dns_ns_record" "aws_sandbox" {

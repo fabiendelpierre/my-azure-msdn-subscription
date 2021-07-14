@@ -14,6 +14,14 @@ variable "vnet_address_space" {
   type = list(string)
 }
 
+variable "my_aad_object_id" {
+  type = string
+}
+
+variable "terraform_aad_object_id" {
+  type = string
+}
+
 # variable "authorized_cidrs" {
 #   type = list(string)
 # }

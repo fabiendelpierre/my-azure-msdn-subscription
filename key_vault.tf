@@ -18,15 +18,24 @@ resource "azurerm_key_vault" "msdn_sandbox" {
   tags = local.tags
 }
 
-# resource "azurerm_key_vault_access_policy" "access_policies" {
-#   for_each = var.authorized_entities
+resource "azurerm_key_vault_access_policy" "me" {
+  key_vault_id = azurerm_key_vault.main.id
 
-#   key_vault_id = azurerm_key_vault.main.id
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  object_id               = var.my_aad_object_id
+  key_permissions         = ["Backup", "Create", "Decrypt", "Delete", "Encrypt", "Get", "Import", "List", "Purge", "Recover", "Restore", "Sign", "UnwrapKey", "Update", "Verify", "WrapKey"]
+  secret_permissions      = ["Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"]
+  certificate_permissions = []
+  storage_permissions     = []
+}
 
-#   tenant_id               = each.value.tenant_id
-#   object_id               = each.value.object_id
-#   key_permissions         = each.value.key_permissions
-#   secret_permissions      = each.value.secret_permissions
-#   certificate_permissions = each.value.certificate_permissions
-#   storage_permissions     = each.value.storage_permissions
-# }
+resource "azurerm_key_vault_access_policy" "tf" {
+  key_vault_id = azurerm_key_vault.main.id
+
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  object_id               = var.terraform_aad_object_id
+  key_permissions         = ["Create", "Delete", "Get", "List", "Purge", "Update"]
+  secret_permissions      = ["Delete", "Get", "List", "Purge", "Set"]
+  certificate_permissions = []
+  storage_permissions     = []
+}

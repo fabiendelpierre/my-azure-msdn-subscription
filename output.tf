@@ -14,3 +14,10 @@ output "msdn_sandbox_subnet1" {
     nsg_id = azurerm_network_security_group.msdn_sandbox1.id
   })
 }
+
+output "msdn_sandbox_key_vault" {
+  value = tomap({
+    name = azurerm_key_vault.msdn_sandbox.name
+    id = azurerm_key_vault.msdn_sandbox.id
+  })
+}

@@ -1,9 +1,3 @@
-resource "random_string" "kv" {
-  length  = 5
-  special = false
-  upper   = false
-}
-
 resource "azurerm_key_vault" "msdn_sandbox" {
   name                        = "${var.base_name}kv${random_string.random.result}"
   resource_group_name         = azurerm_resource_group.infra.name

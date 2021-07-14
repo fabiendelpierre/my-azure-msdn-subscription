@@ -21,3 +21,10 @@ output "msdn_sandbox_key_vault" {
     id = azurerm_key_vault.msdn_sandbox.id
   })
 }
+
+output "msdn_sandbox_storage_account" {
+  value = tomap({
+    name = azurerm_storage_account.msdn_sandbox.name
+    id = azurerm_storage_account.msdn_sandbox.id
+  })
+}

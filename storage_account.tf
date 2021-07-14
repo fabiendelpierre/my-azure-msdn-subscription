@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "msdn_sandbox" {
     ]
   }
 
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "azurerm_storage_account_network_rules" "msdn_sandbox" {

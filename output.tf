@@ -1,12 +1,16 @@
-# output "vault_snapshot_azure_container_name" {
-#   value = module.storage_account.storage_container_name
-# }
+output "msdn_sandbox_vnet" {
+  value = tomap({
+    resource_group_name = azurerm_resource_group.infra.name
+    name = azurerm_virtual_network.msdn_sandbox.name
+    id = azurerm_virtual_network.msdn_sandbox.id
+  })
+}
 
-# output "vault_snapshot_azure_account_name" {
-#   value = module.storage_account.name
-# }
-
-# output "vault_snapshot_azure_account_key" {
-#   value     = module.storage_account.primary_access_key
-#   sensitive = true
-# }
+output "msdn_sandbox_subnet1" {
+  value = tomap({
+    name = azurerm_subnet.msdn_sandbox1.name
+    id = azurerm_subnet.msdn_sandbox1.id
+    nsg_name = azurerm_network_security_group.msdn_sandbox1.name
+    nsg_id = azurerm_network_security_group.msdn_sandbox1.id
+  })
+}

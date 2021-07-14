@@ -1,7 +1,7 @@
 resource "azurerm_storage_account" "msdn_sandbox" {
   name                     = "${var.base_name}sa${random_string.random.result}"
   resource_group_name      = azurerm_resource_group.infra.name
-  location                 = var.location
+  location                 = var.azure_region
   account_kind             = "StorageV2"
   account_tier             = "Standard"
   account_replication_type = "LRS"

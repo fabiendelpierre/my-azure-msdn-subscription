@@ -1,39 +1,3 @@
-
-# resource "azurerm_subnet" "msdn_sandbox1" {
-#   name                 = "${var.base_name}-vnet-subnet1"
-#   resource_group_name  = azurerm_resource_group.msdn_sandbox.name
-#   virtual_network_name = azurerm_virtual_network.msdn_sandbox.name
-#   address_prefixes     = [cidrsubnet(var.vnet_cidr, 2, 0)]
-
-#   service_endpoints = [
-#     "Microsoft.AzureActiveDirectory",
-#     "Microsoft.ContainerRegistry",
-#     "Microsoft.KeyVault",
-#     "Microsoft.Storage",
-#   ]
-# }
-
-# resource "azurerm_network_security_group" "msdn_sandbox1" {
-#   name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg"
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   location            = var.azure_region
-
-#   tags = local.tags
-# }
-
-# resource "azurerm_subnet_network_security_group_association" "msdn_sandbox1" {
-#   subnet_id                 = azurerm_subnet.msdn_sandbox1.id
-#   network_security_group_id = azurerm_network_security_group.msdn_sandbox1.id
-# }
-
-# resource "azurerm_network_security_group" "test" {
-#   name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg-test"
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   location            = var.azure_region
-
-#   tags = local.tags
-# }
-
 # module "key_vault" {
 #   source  = "app.terraform.io/fabiend/keyvault/azurerm"
 #   version = "0.2.1"

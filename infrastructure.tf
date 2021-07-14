@@ -51,3 +51,16 @@ resource "azurerm_subnet" "msdn_sandbox1" {
     "Microsoft.Storage",
   ]
 }
+
+resource "azurerm_network_security_group" "msdn_sandbox1" {
+  name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg"
+  resource_group_name = azurerm_resource_group.infra.name
+  location            = var.azure_region
+
+  tags = local.tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "msdn_sandbox1" {
+  subnet_id                 = azurerm_subnet.msdn_sandbox1.id
+  network_security_group_id = azurerm_network_security_group.msdn_sandbox1.id
+}

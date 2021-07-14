@@ -10,9 +10,9 @@ variable "sandbox_domain_name" {
   type = string
 }
 
-# variable "vnet_cidr" {
-#   type = string
-# }
+variable "vnet_address_space" {
+  type = list(string)
+}
 
 # variable "authorized_cidrs" {
 #   type = list(string)

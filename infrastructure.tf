@@ -28,3 +28,12 @@ resource "azurerm_dns_ns_record" "aws_sandbox" {
 
   tags = local.tags
 }
+
+resource "azurerm_virtual_network" "msdn_sandbox" {
+  name                = "${var.base_name}-vnet"
+  location            = var.azure_region
+  resource_group_name = azurerm_resource_group.infra.name
+  address_space       = var.vnet_address_space
+
+  tags = local.tags
+}

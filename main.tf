@@ -67,6 +67,14 @@ resource "azurerm_subnet_network_security_group_association" "msdn_sandbox1" {
   network_security_group_id = azurerm_network_security_group.msdn_sandbox1.id
 }
 
+resource "azurerm_network_security_group" "test" {
+  name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg-test"
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  location            = var.azure_region
+
+  tags = local.tags
+}
+
 # module "key_vault" {
 #   source  = "app.terraform.io/fabiend/keyvault/azurerm"
 #   version = "0.2.1"

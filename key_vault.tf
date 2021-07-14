@@ -19,7 +19,7 @@ resource "azurerm_key_vault" "msdn_sandbox" {
 }
 
 resource "azurerm_key_vault_access_policy" "me" {
-  key_vault_id = azurerm_key_vault.main.id
+  key_vault_id = azurerm_key_vault.msdn_sandbox.id
 
   tenant_id               = data.azurerm_client_config.current.tenant_id
   object_id               = var.my_aad_object_id
@@ -30,7 +30,7 @@ resource "azurerm_key_vault_access_policy" "me" {
 }
 
 resource "azurerm_key_vault_access_policy" "tf" {
-  key_vault_id = azurerm_key_vault.main.id
+  key_vault_id = azurerm_key_vault.msdn_sandbox.id
 
   tenant_id               = data.azurerm_client_config.current.tenant_id
   object_id               = var.terraform_aad_object_id

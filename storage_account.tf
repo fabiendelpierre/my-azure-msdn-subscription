@@ -27,7 +27,7 @@ resource "azurerm_storage_account_network_rules" "msdn_sandbox" {
   storage_account_name = azurerm_storage_account.msdn_sandbox.name
 
   default_action             = "Allow"
-  bypass                     = "AzureServices"
+  bypass                     = ["AzureServices", "Logging", "Metrics"]
   ip_rules                   = []
   virtual_network_subnet_ids = []
 }

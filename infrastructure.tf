@@ -12,19 +12,19 @@ resource "azurerm_dns_zone" "msdn_sandbox" {
   tags = local.tags
 }
 
-# # Delegation to my sandbox DNS zone in AWS Route 53
-# resource "azurerm_dns_ns_record" "aws_sandbox" {
-#   name                = "aws"
-#   zone_name           = azurerm_dns_zone.msdn_sandbox.name
-#   resource_group_name = azurerm_resource_group.msdn_sandbox.name
-#   ttl                 = 3600
+# Delegation to my sandbox DNS zone in AWS Route 53
+resource "azurerm_dns_ns_record" "aws_sandbox" {
+  name                = "aws"
+  zone_name           = azurerm_dns_zone.msdn_sandbox.name
+  resource_group_name = azurerm_resource_group.msdn_sandbox.name
+  ttl                 = 3600
 
-#   records = [
-#     "ns-1746.awsdns-26.co.uk",
-#     "ns-920.awsdns-51.net",
-#     "ns-449.awsdns-56.com",
-#     "ns-1440.awsdns-52.org.",
-#   ]
+  records = [
+    "ns-1746.awsdns-26.co.uk",
+    "ns-920.awsdns-51.net",
+    "ns-449.awsdns-56.com",
+    "ns-1440.awsdns-52.org.",
+  ]
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}

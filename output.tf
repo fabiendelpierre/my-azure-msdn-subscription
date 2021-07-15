@@ -3,6 +3,8 @@ output "msdn_sandbox_vnet" {
     resource_group_name = azurerm_resource_group.infra.name
     name = azurerm_virtual_network.msdn_sandbox.name
     id = azurerm_virtual_network.msdn_sandbox.id
+    route_table_name = azurerm_route_table.msdn_sandbox.name
+    route_table_id = azurerm_route_table.msdn_sandbox.id
   })
 }
 

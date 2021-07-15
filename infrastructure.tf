@@ -51,7 +51,7 @@ resource "azurerm_route_table" "msdn_sandbox" {
   resource_group_name           = azurerm_resource_group.infra.name
   disable_bgp_route_propagation = true
 
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "azurerm_route" "msdn_sandbox_vnetlocal" {

@@ -62,6 +62,19 @@ resource "azurerm_route" "msdn_sandbox_vnetlocal" {
   next_hop_type       = "vnetlocal"
 }
 
+resource "azurerm_route" "msdn_sandbox_internet" {
+  name                = "internet"
+  resource_group_name = azurerm_resource_group.infra.name
+  route_table_name    = azurerm_route_table.msdn_sandbox.name
+  address_prefix      = "0.0.0.0/0"
+  next_hop_type       = "Internet"
+}
+
+resource "azurerm_subnet_route_table_association" "msdn_sandbox1" {
+  subnet_id      = azurerm_subnet.msdn_sandbox1.id
+  route_table_id = azurerm_route_table.msdn_sandbox.id
+}
+
 resource "azurerm_network_security_group" "msdn_sandbox1" {
   name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg"
   resource_group_name = azurerm_resource_group.infra.name

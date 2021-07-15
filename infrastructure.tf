@@ -45,6 +45,23 @@ resource "azurerm_subnet" "msdn_sandbox1" {
   address_prefixes     = [cidrsubnet(var.vnet_address_space[0], 4, 0)]
 }
 
+resource "azurerm_route_table" "msdn_sandbox" {
+  name                          = "${azurerm_virtual_network.msdn_sandbox.name}-routetable"
+  location                      = var.azure_region
+  resource_group_name           = azurerm_resource_group.infra.name
+  disable_bgp_route_propagation = true
+
+  tags = var.tags
+}
+
+resource "azurerm_route" "msdn_sandbox_vnetlocal" {
+  name                = "vnetlocal"
+  resource_group_name = azurerm_resource_group.infra.name
+  route_table_name    = azurerm_route_table.msdn_sandbox.name
+  address_prefix      = var.vnet_address_space[0]
+  next_hop_type       = "vnetlocal"
+}
+
 resource "azurerm_network_security_group" "msdn_sandbox1" {
   name                = "${azurerm_subnet.msdn_sandbox1.name}-nsg"
   resource_group_name = azurerm_resource_group.infra.name
